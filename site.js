@@ -29,14 +29,10 @@ var MAX_FILE_MB = 10;
     });
   });
 
-  // Rate card: Roshashang rate sheet, per audio minute
-  var RATES={normal:{label:'Normal · 7 working days',rate:25.00},urgent:{label:'Urgent · 3 working days',rate:45.00},extreme:{label:'Extreme urgent / overnight',rate:55.30}};
-  function rand(n){return 'R '+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
-
   var form=document.getElementById('quote');
   if(!form)return;
   var dz=document.getElementById('dz'),fi=document.getElementById('q-file'),dn=document.getElementById('dz-name');
-  var svc=document.getElementById('q-svc'),min=document.getElementById('q-min'),tat=document.getElementById('q-tat'),out=document.getElementById('q-est'),estField=document.getElementById('q-estimate');
+  var svc=document.getElementById('q-svc'),min=document.getElementById('q-min'),tat=document.getElementById('q-tat');
 
   dz.addEventListener('click',function(){fi.click()});
   dz.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();fi.click()}});
@@ -48,17 +44,12 @@ var MAX_FILE_MB = 10;
     var mb=f.size/1048576;
     dn.textContent=f.name+' · '+mb.toFixed(1)+' MB'+(mb>MAX_FILE_MB?' — too large to attach. Send the form without it and we will reply with a secure upload link.':'');
     var a=document.createElement('audio');a.preload='metadata';a.src=URL.createObjectURL(f);
-    a.onloadedmetadata=function(){if(isFinite(a.duration)&&a.duration>0){min.value=Math.ceil(a.duration/60);est()}};
+    a.onloadedmetadata=function(){if(isFinite(a.duration)&&a.duration>0){min.value=Math.ceil(a.duration/60)}};
   }
-  function est(){
-    var m=parseFloat(min.value),perMin=svc.selectedOptions[0].dataset.perMin==='1';
-    if(!perMin){out.innerHTML='<span>This service is quoted per matter.</span><b>On quotation</b>';estField.value='On quotation';return}
-    if(!(m>0)){out.innerHTML='<span>Enter the recording length to see an estimate.</span><b>—</b>';estField.value='';return}
-    var r=RATES[tat.selectedOptions[0].dataset.k],total=Math.ceil(m)*r.rate;
-    out.innerHTML='<span>'+Math.ceil(m)+' audio min × '+rand(r.rate)+' ('+r.label+')</span><b>'+rand(total)+'</b>';
-    estField.value=rand(total)+' ('+Math.ceil(m)+' min × '+rand(r.rate)+', '+r.label+')';
-  }
-  [svc,min,tat].forEach(function(el){el.addEventListener('input',est)});est();
+  // Pre-select turnaround when arriving from a rates-page button (?tat=normal|urgent|extreme)
+  try{var want=new URLSearchParams(location.search).get('tat');
+    if(want&&tat){for(var i=0;i<tat.options.length;i++){if(tat.options[i].getAttribute('data-k')===want){tat.selectedIndex=i;break}}}
+  }catch(e){}
 
   var msg=document.getElementById('sent'),btn=document.getElementById('q-send');
   var next=document.getElementById('q-next');
@@ -70,6 +61,6 @@ var MAX_FILE_MB = 10;
     var f=fi.files[0];
     if(f&&f.size>MAX_FILE_MB*1048576){e.preventDefault();say('The recording is larger than '+MAX_FILE_MB+' MB. Remove it and send the form, and we will reply with a secure upload link.',true);return}
     document.getElementById('q-subject').value='Quote request: '+svc.value+' ('+n+')';
-    est();btn.disabled=true;btn.textContent='Sending…';
+    btn.disabled=true;btn.textContent='Sending…';
   });
 })();

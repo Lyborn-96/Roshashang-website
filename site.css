@@ -307,3 +307,10 @@ footer a:hover{color:var(--peach)}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 form.quote{position:relative}
 .legal .wrap>span:last-child{margin-right:64px}
+/* Quote-led rate cards (replaces price figures) */
+.rate .price.q{font-size:30px;line-height:1.15}
+.rate .price.q small{display:block;margin-top:4px}
+.rate{display:flex;flex-direction:column;gap:10px}
+.rate>.btn{align-self:flex-start;margin-top:auto}
+.rate>ul+.btn,.rate>.price+.btn{margin-top:auto}
+.rate>.price{margin-bottom:6px}
